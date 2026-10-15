@@ -94,6 +94,22 @@
     }
     .sync-btn:hover { background: #1e293b; opacity: 1; }
 
+    /* AI自動生成に関する注記エリア */
+    .ai-notice {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      font-size: 0.76rem;
+      color: #64748b;
+      line-height: 1.45;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .ai-notice-icon { flex-shrink: 0; font-size: 0.82rem; }
+
     .history-list { font-size: 0.82rem; }
     .history-item { padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   </style>
@@ -147,6 +163,11 @@
         <div style="color:#94a3b8; font-size:0.85rem; padding:8px;">エピソードを選択すると字幕が表示されます。</div>
       </div>
       <button class="sync-btn" id="syncBtn" onclick="resumeSync()">📍 現在位置へ</button>
+    </div>
+    <!-- AI自動生成の注意書き -->
+    <div class="ai-notice">
+      <span class="ai-notice-icon">ℹ️</span>
+      <span>この字幕および翻訳はAIにより自動生成されています。そのため、実際の音声表現と一致しない箇所やニュアンスが異なる場合があります。あらかじめご了承ください。</span>
     </div>
   </div>
 
@@ -474,7 +495,6 @@
               document.querySelectorAll('.sub-item.active').forEach(it => it.classList.remove('active'));
               el.classList.add('active');
 
-              // 自動同期が有効なときだけ画面をスクロール
               if (isAutoSyncEnabled) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
               }
