@@ -19,7 +19,7 @@
     body { background: var(--bg); color: var(--text); padding: 12px; max-width: 680px; margin: 0 auto; line-height: 1.5; }
     h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; text-align: center; color: var(--text); }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-    .card-title { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; color: #475569; display: flex; justify-content: space-between; align-items: center; }
+    .card-title { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; color: #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
 
     .chip-container { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
     .chip {
@@ -28,7 +28,6 @@
     }
     .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-    /* エピソード選択アコーディオン（文字色をしっかり濃い色に指定） */
     .accordion-toggle {
       width: 100%; text-align: left; background: #f8fafc; border: 1px solid var(--border);
       padding: 10px 14px; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
@@ -60,17 +59,31 @@
     button.secondary { background: #f1f5f9; color: #334155; border: 1px solid var(--border); }
     button.secondary:hover { background: #e2e8f0; }
 
+    /* 字幕リスト */
     .subtitle-list {
       max-height: 340px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;
       padding: 8px; background: #fafafa;
     }
-    .sub-item { padding: 8px 10px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; margin-bottom: 4px; color: #1e293b; }
+    .sub-item { padding: 8px 10px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; margin-bottom: 4px; color: #1e293b; transition: 0.15s; }
     .sub-item:hover { background: #edf2f7; }
     .sub-item.active { background: var(--highlight); color: #1e40af; border-left: 4px solid var(--primary); font-weight: 600; }
     .sub-time { font-size: 0.75rem; color: #94a3b8; margin-right: 8px; }
-    .sub-en { line-height: 1.4; }
+    .sub-en { line-height: 1.4; transition: filter 0.2s; }
     .sub-ja { font-size: 0.82rem; color: #64748b; margin-top: 3px; font-weight: normal; }
+
+    /* 翻訳非表示 */
     .hide-ja .sub-ja { display: none !important; }
+
+    /* ディクテーション用ぼかし機能（ホバーやタップで一時解除） */
+    .blur-en .sub-en {
+      filter: blur(5px);
+      user-select: none;
+    }
+    .blur-en .sub-item:hover .sub-en,
+    .blur-en .sub-item:active .sub-en {
+      filter: none;
+      user-select: auto;
+    }
 
     .history-list { font-size: 0.82rem; }
     .history-item { padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
@@ -114,7 +127,10 @@
   <div class="card">
     <div class="card-title">
       <span id="subCount">字幕スクリプト</span>
-      <button class="secondary" id="toggleJaBtn" onclick="toggleJa()">🇯🇵 和訳: ON</button>
+      <div style="display: flex; gap: 6px;">
+        <button class="secondary" id="toggleBlurBtn" onclick="toggleBlurSubtitles()">📝 字幕: 表示</button>
+        <button class="secondary" id="toggleJaBtn" onclick="toggleTranslation()">🌐 翻訳: ON</button>
+      </div>
     </div>
     <div class="subtitle-list" id="subtitleList">
       <div style="color:#94a3b8; font-size:0.85rem; padding:8px;">エピソードを選択すると字幕が表示されます。</div>
@@ -141,7 +157,8 @@
     let sentences = [];
     let currentSentenceIdx = -1;
     let timeTrackingTimer = null;
-    let showJapanese = true;
+    let showTranslation = true;
+    let blurSubtitles = false;
 
     function getValue(obj, targetKey) {
       if (!obj) return "";
@@ -394,16 +411,31 @@
       }
     }
 
-    function toggleJa() {
-      showJapanese = !showJapanese;
+    // 翻訳の表示/非表示トグル
+    function toggleTranslation() {
+      showTranslation = !showTranslation;
       const list = document.getElementById('subtitleList');
       const btn = document.getElementById('toggleJaBtn');
-      if (showJapanese) {
+      if (showTranslation) {
         list.classList.remove('hide-ja');
-        btn.innerText = '🇯🇵 和訳: ON';
+        btn.innerText = '🌐 翻訳: ON';
       } else {
         list.classList.add('hide-ja');
-        btn.innerText = '🇯🇵 和訳: OFF';
+        btn.innerText = '🌐 翻訳: OFF';
+      }
+    }
+
+    // 字幕のぼかしトグル（ディクテーション用）
+    function toggleBlurSubtitles() {
+      blurSubtitles = !blurSubtitles;
+      const list = document.getElementById('subtitleList');
+      const btn = document.getElementById('toggleBlurBtn');
+      if (blurSubtitles) {
+        list.classList.add('blur-en');
+        btn.innerText = '🙈 字幕: ぼかし中';
+      } else {
+        list.classList.remove('blur-en');
+        btn.innerText = '📝 字幕: 表示';
       }
     }
 
