@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>日英バイリンガル字幕専用プレイヤー</title>
-  <!-- YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
-  <!-- PapaParse: CSVパース用ライブラリ -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     :root {
@@ -14,26 +12,22 @@
       --card: #ffffff;
       --text: #1e293b;
       --primary: #2563eb;
-      --primary-hover: #1d4ed8;
       --border: #e2e8f0;
       --highlight: #dbeafe;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 12px; max-width: 680px; margin: 0 auto; line-height: 1.5; }
     h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; text-align: center; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
     .card-title { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; color: #475569; display: flex; justify-content: space-between; align-items: center; }
 
-    /* 番組選択チップ */
     .chip-container { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
     .chip {
       background: #f1f5f9; border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px;
       font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: 0.15s;
     }
-    .chip:hover { background: #e2e8f0; }
     .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-    /* エピソード一覧（アコーディオン） */
     .accordion-toggle {
       width: 100%; text-align: left; background: #f8fafc; border: 1px solid var(--border);
       padding: 8px 12px; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
@@ -44,62 +38,48 @@
       margin-top: 6px; background: #fff; display: none;
     }
     .episode-list.open { display: block; }
-    .episode-item {
-      padding: 9px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; cursor: pointer; transition: 0.1s;
-    }
-    .episode-item:last-child { border-bottom: none; }
+    .episode-item { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; cursor: pointer; }
     .episode-item:hover { background: #f8fafc; }
-    .episode-item.active { background: #eff6ff; color: var(--primary); font-weight: 600; }
 
-    /* YouTube 動画 */
     .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; background: #000; margin-bottom: 8px; }
     .video-container iframe, .video-container #player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .controls { display: flex; gap: 6px; flex-wrap: wrap; }
 
     button {
       background: var(--primary); color: white; border: none; border-radius: 6px; padding: 6px 12px;
-      font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: 0.15s;
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
     }
     button.secondary { background: #f1f5f9; color: #334155; border: 1px solid var(--border); }
-    button.secondary:hover { background: #e2e8f0; }
 
-    /* 字幕エリア */
     .subtitle-list {
       max-height: 340px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;
       padding: 8px; background: #fafafa;
     }
-    .sub-item {
-      padding: 8px 10px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; transition: 0.15s; margin-bottom: 4px;
-    }
+    .sub-item { padding: 8px 10px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; margin-bottom: 4px; }
     .sub-item:hover { background: #edf2f7; }
     .sub-item.active { background: var(--highlight); color: #1e40af; border-left: 4px solid var(--primary); font-weight: 600; }
     .sub-time { font-size: 0.75rem; color: #94a3b8; margin-right: 8px; }
     .sub-en { line-height: 1.4; }
-    .sub-ja { font-size: 0.82rem; color: #64748b; margin-top: 3px; line-height: 1.35; font-weight: normal; }
+    .sub-ja { font-size: 0.82rem; color: #64748b; margin-top: 3px; font-weight: normal; }
     .hide-ja .sub-ja { display: none !important; }
 
-    /* 履歴リスト */
     .history-list { font-size: 0.82rem; }
-    .history-item {
-      padding: 7px 0; border-bottom: 1px solid var(--border); display: flex;
-      justify-content: space-between; align-items: center; gap: 8px;
-    }
-    .history-item:last-child { border-bottom: none; }
+    .history-item { padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   </style>
 </head>
 <body>
 
   <h1>🎧 日英バイリンガル字幕専用プレイヤー</h1>
 
-  <!-- 1. ポッドキャスト番組の選択 -->
+  <!-- 1. 番組選択 -->
   <div class="card">
     <div class="card-title">1. 番組を選ぶ</div>
     <div class="chip-container" id="seriesChips">
-      <span style="font-size:0.82rem; color:#94a3b8;">スプレッドシートから読み込み中...</span>
+      <span style="font-size:0.82rem; color:#94a3b8;">読み込み中...</span>
     </div>
   </div>
 
-  <!-- 2. エピソード一覧（自動開閉） -->
+  <!-- 2. エピソード一覧 -->
   <div class="card" id="episodeSection" style="display:none;">
     <button class="accordion-toggle" onclick="toggleEpisodeList()">
       <span id="currentEpisodeLabel">エピソードを選択してください</span>
@@ -108,33 +88,31 @@
     <div class="episode-list" id="episodeList"></div>
   </div>
 
-  <!-- 3. YouTube 再生エリア -->
+  <!-- 3. YouTube 再生 -->
   <div class="card">
     <div class="video-container">
       <div id="player"></div>
     </div>
     <div class="controls">
-      <button class="secondary" onclick="repeatCurrentSentence()">🔁 この文を頭から</button>
-      <button class="secondary" onclick="skipVideo(-3)">⏪ 3秒戻る</button>
-      <button class="secondary" onclick="skipVideo(3)">3秒進む ⏩</button>
+      <button class="secondary" onclick="repeatSentence()">🔁 この文を頭から</button>
+      <button class="secondary" onclick="skipSec(-3)">⏪ 3秒戻る</button>
+      <button class="secondary" onclick="skipSec(3)">3秒進む ⏩</button>
       <button class="secondary" id="speedBtn" onclick="toggleSpeed()">速度: 1.0x</button>
     </div>
   </div>
 
-  <!-- 4. 字幕スクリプト（主役） -->
+  <!-- 4. 字幕 -->
   <div class="card">
     <div class="card-title">
       <span id="subCount">字幕スクリプト</span>
-      <div>
-        <button class="secondary" id="toggleJaBtn" onclick="toggleJaSubtitle()">🇯🇵 和訳: ON</button>
-      </div>
+      <button class="secondary" id="toggleJaBtn" onclick="toggleJa()">🇯🇵 和訳: ON</button>
     </div>
     <div class="subtitle-list" id="subtitleList">
       <div style="color:#94a3b8; font-size:0.85rem; padding:8px;">エピソードを選択すると字幕が表示されます。</div>
     </div>
   </div>
 
-  <!-- 5. 再生履歴 -->
+  <!-- 5. 履歴 -->
   <div class="card">
     <div class="card-title">
       <span>最近聴いたエピソード</span>
@@ -144,34 +122,32 @@
   </div>
 
   <script>
-    // ==========================================
-    // 設定：Googleスプレッドシートの「ウェブに公開(CSV)」URL
-    // ==========================================
     const SPREADSHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=0&single=true&output=csv";
 
     let ytPlayer = null;
     let isPlayerReady = false;
     let pendingVideoId = null;
-
     let allEpisodes = [];
     let currentSeries = "";
-    let currentEpisode = null;
     let sentences = [];
     let currentSentenceIdx = -1;
     let timeTrackingTimer = null;
     let showJapanese = true;
 
+    // 大文字小文字や余計な空白を無視してプロパティを取り出す関数
+    function getValue(obj, targetKey) {
+      if (!obj) return "";
+      const searchKey = targetKey.toLowerCase().trim();
+      for (const k in obj) {
+        if (k.toLowerCase().trim() === searchKey) {
+          return obj[k] !== undefined && obj[k] !== null ? String(obj[k]).trim() : "";
+        }
+      }
+      return "";
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       renderHistory();
-      if (SPREADSHEET_CSV_URL && !SPREADSHEET_CSV_URL.includes("ここに公開した")) {
-        fetchSheetData();
-      } else {
-        showSetupGuide();
-      }
-    });
-
-    // スプレッドシート読み込み
-    function fetchSheetData() {
       Papa.parse(SPREADSHEET_CSV_URL, {
         download: true,
         header: true,
@@ -181,16 +157,14 @@
           renderSeriesChips();
         },
         error: function(err) {
-          console.error(err);
-          alert("スプレッドシートの取得に失敗しました。CSVの公開設定を確認してください。");
+          alert("スプレッドシートの取得に失敗しました。");
         }
       });
-    }
+    });
 
-    // 番組チップを描画
     function renderSeriesChips() {
       const container = document.getElementById('seriesChips');
-      const seriesList = [...new Set(allEpisodes.map(ep => ep.series).filter(Boolean))];
+      const seriesList = [...new Set(allEpisodes.map(ep => getValue(ep, 'series')).filter(Boolean))];
 
       if (seriesList.length === 0) {
         container.innerHTML = '<span style="font-size:0.82rem; color:#94a3b8;">番組データがありません。</span>';
@@ -198,7 +172,7 @@
       }
 
       container.innerHTML = seriesList.map(s => `
-        <div class="chip ${s === currentSeries ? 'active' : ''}" onclick="selectSeries('${escapeJsString(s)}')">${escapeHtml(s)}</div>
+        <div class="chip ${s === currentSeries ? 'active' : ''}" onclick="selectSeries('${s.replace(/'/g, "\\'")}')">${s}</div>
       `).join('');
 
       if (!currentSeries && seriesList.length > 0) {
@@ -206,7 +180,6 @@
       }
     }
 
-    // 番組選択時
     function selectSeries(seriesName) {
       currentSeries = seriesName;
       renderSeriesChips();
@@ -215,55 +188,52 @@
       epSection.style.display = 'block';
 
       const listContainer = document.getElementById('episodeList');
-      const filtered = allEpisodes.filter(ep => ep.series === seriesName);
+      const filtered = allEpisodes.filter(ep => getValue(ep, 'series') === seriesName);
 
-      listContainer.innerHTML = filtered.map(ep => `
-        <div class="episode-item" onclick="selectEpisode('${encodeURIComponent(JSON.stringify(ep))}')">
-          ${escapeHtml(ep.title || '無題')}
-        </div>
-      `).join('');
+      listContainer.innerHTML = filtered.map(ep => {
+        const title = getValue(ep, 'title') || '無題';
+        const globalIdx = allEpisodes.indexOf(ep);
+        return `
+          <div class="episode-item" onclick="selectEpisodeByIndex(${globalIdx})">
+            ${title}
+          </div>
+        `;
+      }).join('');
 
       openEpisodeList();
     }
 
-    // エピソード一覧の開閉
     function toggleEpisodeList() {
       const list = document.getElementById('episodeList');
       const arrow = document.getElementById('accordionArrow');
       list.classList.toggle('open');
       arrow.innerText = list.classList.contains('open') ? '▲' : '▼';
     }
-
     function openEpisodeList() {
       document.getElementById('episodeList').classList.add('open');
       document.getElementById('accordionArrow').innerText = '▲';
     }
-
     function closeEpisodeList() {
       document.getElementById('episodeList').classList.remove('open');
       document.getElementById('accordionArrow').innerText = '▼';
     }
 
-    // エピソード選択時
-    function selectEpisode(epJsonStr) {
-      const ep = JSON.parse(decodeURIComponent(epJsonStr));
-      applyEpisode(ep);
+    function selectEpisodeByIndex(idx) {
+      const ep = allEpisodes[idx];
+      playEpisodeData(ep);
       saveToHistory(ep);
     }
 
-    // エピソード反映
-    function applyEpisode(ep) {
-      currentEpisode = ep;
-      const label = ep.series ? `${ep.series} - ${ep.title}` : (ep.title || '');
-      document.getElementById('currentEpisodeLabel').innerText = label;
+    function playEpisodeData(ep) {
+      const series = getValue(ep, 'series');
+      const title = getValue(ep, 'title');
+      const rawUrl = getValue(ep, 'url');
+      const rawTranscript = getValue(ep, 'transcript');
+
+      document.getElementById('currentEpisodeLabel').innerText = series ? `${series} - ${title}` : title;
       closeEpisodeList();
 
-      loadEpisodeContent(ep);
-    }
-
-    // 動画と字幕の読み込み
-    function loadEpisodeContent(ep) {
-      const videoId = extractVideoId(ep.url);
+      const videoId = extractVideoId(rawUrl);
       if (videoId) {
         if (isPlayerReady && ytPlayer && ytPlayer.loadVideoById) {
           ytPlayer.loadVideoById(videoId);
@@ -271,22 +241,30 @@
           pendingVideoId = videoId;
         }
       }
-      parseSubtitles(ep.transcript);
+
+      parseSubtitles(rawTranscript);
     }
 
-    // タイムスタンプパース（ミリ秒表記 .xxx や ,xxx にも対応）
+    // カッコ付き [00:00] や 0:00、00:00.000 など幅広く対応
     function parseSubtitles(rawText) {
-      if (!rawText) return;
+      const list = document.getElementById('subtitleList');
+      if (!rawText) {
+        list.innerHTML = '<div style="color:#ef4444; font-size:0.85rem; padding:8px;">字幕データが見つかりませんでした。</div>';
+        return;
+      }
+
       const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
       sentences = [];
       currentSentenceIdx = -1;
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        const timeMatch = line.match(/^(\d{1,2}:)?\d{1,2}:\d{2}([.,]\d{1,3})?/);
+        // [00:00] または 00:00 形式
+        const timeMatch = line.match(/\[?(\d{1,2}:)?\d{1,2}:\d{2}([.,]\d{1,3})?\]?/);
 
         if (timeMatch) {
-          const sec = timeToSeconds(timeMatch[0]);
+          const timeStr = timeMatch[0].replace(/[\[\]]/g, '');
+          const sec = timeToSeconds(timeStr);
           let rest = line.replace(timeMatch[0], '').trim();
           let en = rest;
           let ja = '';
@@ -331,50 +309,52 @@
       });
     }
 
-    // YouTube IFrame API 初期化
     window.onYouTubeIframeAPIReady = function() {
       ytPlayer = new YT.Player('player', {
         height: '100%',
         width: '100%',
         videoId: '',
-        playerVars: {
-          'playsinline': 1,
-          'rel': 0
-        },
+        playerVars: { 'playsinline': 1, 'rel': 0 },
         events: {
-          'onReady': onPlayerReady,
-          'onStateChange': onPlayerStateChange
+          'onReady': () => {
+            isPlayerReady = true;
+            if (pendingVideoId) {
+              ytPlayer.loadVideoById(pendingVideoId);
+              pendingVideoId = null;
+            }
+          },
+          'onStateChange': (e) => {
+            if (e.data === YT.PlayerState.PLAYING) {
+              if (!timeTrackingTimer) timeTrackingTimer = setInterval(trackSubtitles, 250);
+            } else {
+              clearInterval(timeTrackingTimer);
+              timeTrackingTimer = null;
+            }
+          }
         }
       });
     };
 
-    function onPlayerReady() {
-      isPlayerReady = true;
-      if (pendingVideoId) {
-        ytPlayer.loadVideoById(pendingVideoId);
-        pendingVideoId = null;
-      }
-    }
-
+    // YouTubeのURLから11桁のIDを抽出（どんなURL形式でもOK）
     function extractVideoId(url) {
       if (!url) return null;
-      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-      return (match && match[1]) ? match[1] : null;
+      const clean = url.trim();
+      const match = clean.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+      return match ? match[1] : null;
     }
 
-    function skipVideo(sec) {
+    function skipSec(sec) {
       if (!isPlayerReady || !ytPlayer || !ytPlayer.getCurrentTime) return;
       ytPlayer.seekTo(Math.max(0, ytPlayer.getCurrentTime() + sec), true);
     }
 
-    // この文を頭からリピート
-    function repeatCurrentSentence() {
+    function repeatSentence() {
       if (!isPlayerReady || !ytPlayer) return;
       if (currentSentenceIdx >= 0 && sentences[currentSentenceIdx]) {
         ytPlayer.seekTo(sentences[currentSentenceIdx].start, true);
         ytPlayer.playVideo();
       } else {
-        skipVideo(-3);
+        skipSec(-3);
       }
     }
 
@@ -386,15 +366,6 @@
       const rate = speeds[speedIdx];
       ytPlayer.setPlaybackRate(rate);
       document.getElementById('speedBtn').innerText = `速度: ${rate.toFixed(1)}x`;
-    }
-
-    function onPlayerStateChange(event) {
-      if (event.data === YT.PlayerState.PLAYING) {
-        if (!timeTrackingTimer) timeTrackingTimer = setInterval(trackSubtitles, 250);
-      } else {
-        clearInterval(timeTrackingTimer);
-        timeTrackingTimer = null;
-      }
     }
 
     function trackSubtitles() {
@@ -418,7 +389,7 @@
       }
     }
 
-    function toggleJaSubtitle() {
+    function toggleJa() {
       showJapanese = !showJapanese;
       const list = document.getElementById('subtitleList');
       const btn = document.getElementById('toggleJaBtn');
@@ -447,28 +418,18 @@
 
     function escapeHtml(str) {
       if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    function escapeJsString(str) {
-      if (!str) return '';
-      return String(str).replace(/'/g, "\\'");
-    }
-
-    // 履歴管理
     function saveToHistory(ep) {
+      const url = getValue(ep, 'url');
       let history = JSON.parse(localStorage.getItem('yt_bilingual_history') || '[]');
-      history = history.filter(h => h.url !== ep.url);
+      history = history.filter(h => getValue(h, 'url') !== url);
       history.unshift({
-        series: ep.series,
-        title: ep.title,
-        url: ep.url,
-        transcript: ep.transcript,
+        series: getValue(ep, 'series'),
+        title: getValue(ep, 'title'),
+        url: url,
+        transcript: getValue(ep, 'transcript'),
         date: new Date().toLocaleDateString([], { month: 'numeric', day: 'numeric' })
       });
       if (history.length > 10) history.pop();
@@ -489,7 +450,7 @@
             <strong>${escapeHtml(h.title)}</strong>
             <div style="font-size:0.75rem; color:#64748b;">${escapeHtml(h.series)} · ${h.date}</div>
           </div>
-          <button class="secondary" onclick="applyEpisode(${JSON.stringify(h).replace(/"/g, '&quot;')})">▶ もう一度聴く</button>
+          <button class="secondary" onclick='playEpisodeData(${JSON.stringify(h).replace(/'/g, "&#39;")})'>▶ もう一度聴く</button>
         </div>
       `).join('');
     }
@@ -499,15 +460,6 @@
         localStorage.removeItem('yt_bilingual_history');
         renderHistory();
       }
-    }
-
-    function showSetupGuide() {
-      document.getElementById('seriesChips').innerHTML = `
-        <div style="font-size:0.82rem; color:#b91c1c; background:#fee2e2; padding:8px; border-radius:6px; width:100%;">
-          ⚠️ スプレッドシートのCSV URLが設定されていません。<br>
-          コード内の <code>SPREADSHEET_CSV_URL</code> に公開したURLを設定してください。
-        </div>
-      `;
     }
   </script>
 </body>
