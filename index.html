@@ -17,29 +17,37 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 12px; max-width: 680px; margin: 0 auto; line-height: 1.5; }
-    h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; text-align: center; }
+    h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; text-align: center; color: var(--text); }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
     .card-title { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; color: #475569; display: flex; justify-content: space-between; align-items: center; }
 
     .chip-container { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
     .chip {
       background: #f1f5f9; border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px;
-      font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: 0.15s;
+      font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: 0.15s; color: #334155;
     }
     .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
+    /* エピソード選択アコーディオン（文字色をしっかり濃い色に指定） */
     .accordion-toggle {
       width: 100%; text-align: left; background: #f8fafc; border: 1px solid var(--border);
-      padding: 8px 12px; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
-      display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+      padding: 10px 14px; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
+      color: #1e293b; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
     }
+    .accordion-toggle:hover { background: #f1f5f9; }
+    .accordion-toggle #accordionArrow { color: #64748b; font-size: 0.8rem; }
+
     .episode-list {
       max-height: 240px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;
       margin-top: 6px; background: #fff; display: none;
     }
     .episode-list.open { display: block; }
-    .episode-item { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; cursor: pointer; }
-    .episode-item:hover { background: #f8fafc; }
+    .episode-item {
+      padding: 10px 14px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; cursor: pointer;
+      color: #334155; transition: 0.1s;
+    }
+    .episode-item:last-child { border-bottom: none; }
+    .episode-item:hover { background: #eff6ff; color: var(--primary); }
 
     .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; background: #000; margin-bottom: 8px; }
     .video-container iframe, .video-container #player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
@@ -50,12 +58,13 @@
       font-size: 0.82rem; font-weight: 500; cursor: pointer;
     }
     button.secondary { background: #f1f5f9; color: #334155; border: 1px solid var(--border); }
+    button.secondary:hover { background: #e2e8f0; }
 
     .subtitle-list {
       max-height: 340px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;
       padding: 8px; background: #fafafa;
     }
-    .sub-item { padding: 8px 10px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; margin-bottom: 4px; }
+    .sub-item { padding: 8px 10px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; margin-bottom: 4px; color: #1e293b; }
     .sub-item:hover { background: #edf2f7; }
     .sub-item.active { background: var(--highlight); color: #1e40af; border-left: 4px solid var(--primary); font-weight: 600; }
     .sub-time { font-size: 0.75rem; color: #94a3b8; margin-right: 8px; }
@@ -134,7 +143,6 @@
     let timeTrackingTimer = null;
     let showJapanese = true;
 
-    // 大文字小文字や余計な空白を無視してプロパティを取り出す関数
     function getValue(obj, targetKey) {
       if (!obj) return "";
       const searchKey = targetKey.toLowerCase().trim();
@@ -245,7 +253,6 @@
       parseSubtitles(rawTranscript);
     }
 
-    // カッコ付き [00:00] や 0:00、00:00.000 など幅広く対応
     function parseSubtitles(rawText) {
       const list = document.getElementById('subtitleList');
       if (!rawText) {
@@ -259,7 +266,6 @@
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        // [00:00] または 00:00 形式
         const timeMatch = line.match(/\[?(\d{1,2}:)?\d{1,2}:\d{2}([.,]\d{1,3})?\]?/);
 
         if (timeMatch) {
@@ -335,7 +341,6 @@
       });
     };
 
-    // YouTubeのURLから11桁のIDを抽出（どんなURL形式でもOK）
     function extractVideoId(url) {
       if (!url) return null;
       const clean = url.trim();
