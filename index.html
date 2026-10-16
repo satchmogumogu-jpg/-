@@ -59,7 +59,6 @@
     button.secondary { background: #f1f5f9; color: #334155; border: 1px solid var(--border); }
     button.secondary:hover { background: #e2e8f0; }
 
-    /* 字幕リストとコンテナ */
     .subtitle-wrapper { position: relative; }
     .subtitle-list {
       max-height: 340px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;
@@ -80,12 +79,10 @@
 
     .hide-ja .sub-ja { display: none !important; }
 
-    /* ディクテーション用ぼかし */
     .blur-en .sub-en { filter: blur(5px); user-select: none; }
     .blur-en .sub-item:hover .sub-en,
     .blur-en .sub-item:active .sub-en { filter: none; user-select: auto; }
 
-    /* 現在位置へ戻るフローティングボタン */
     .sync-btn {
       position: absolute; bottom: 12px; right: 12px; background: #0f172a; color: #fff;
       border: none; border-radius: 20px; padding: 6px 14px; font-size: 0.78rem; font-weight: 600;
@@ -94,7 +91,6 @@
     }
     .sync-btn:hover { background: #1e293b; opacity: 1; }
 
-    /* AI自動生成に関する注記エリア */
     .ai-notice {
       margin-top: 10px;
       padding: 8px 12px;
@@ -164,7 +160,6 @@
       </div>
       <button class="sync-btn" id="syncBtn" onclick="resumeSync()">📍 現在位置へ</button>
     </div>
-    <!-- AI自動生成の注意書き -->
     <div class="ai-notice">
       <span class="ai-notice-icon">ℹ️</span>
       <span>この字幕および翻訳はAIにより自動生成されています。そのため、実際の音声表現と一致しない箇所やニュアンスが異なる場合があります。あらかじめご了承ください。</span>
@@ -181,7 +176,14 @@
   </div>
 
   <script>
-    const SPREADSHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=0&single=true&output=csv";
+    // 登録された複数のシートCSV URL
+    const SPREADSHEET_CSV_URLS = [
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=0&single=true&output=csv",
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=424319748&single=true&output=csv",
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=2025551974&single=true&output=csv",
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=1080297288&single=true&output=csv",
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=223186418&single=true&output=csv"
+    ];
 
     let ytPlayer = null;
     let isPlayerReady = false;
@@ -193,8 +195,6 @@
     let timeTrackingTimer = null;
     let showTranslation = true;
     let blurSubtitles = false;
-
-    // 自動スクロール同期フラグ
     let isAutoSyncEnabled = true;
 
     function getValue(obj, targetKey) {
@@ -211,21 +211,35 @@
     document.addEventListener("DOMContentLoaded", () => {
       renderHistory();
       initScrollListener();
-      Papa.parse(SPREADSHEET_CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-          allEpisodes = results.data;
-          renderSeriesChips();
-        },
-        error: function(err) {
-          alert("スプレッドシートの取得に失敗しました。");
-        }
-      });
+      loadAllSheets();
     });
 
-    // 手動スクロール検知（ユーザーが触ったら自動同期OFF）
+    // 複数シートを並列で読み込んで合体
+    function loadAllSheets() {
+      const promises = SPREADSHEET_CSV_URLS.map(url => {
+        return new Promise((resolve) => {
+          Papa.parse(url, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => resolve(results.data || []),
+            error: () => resolve([]) // 読み込めないシートがあっても他を活かす
+          });
+        });
+      });
+
+      Promise.all(promises).then(sheetResults => {
+        // 全シートのデータを1つの配列にフラット化
+        const combined = sheetResults.flat().filter(ep => {
+          // 有効な行（titleまたはurlがあるもの）だけ残す
+          return getValue(ep, 'title') || getValue(ep, 'url');
+        });
+
+        allEpisodes = combined;
+        renderSeriesChips();
+      });
+    }
+
     function initScrollListener() {
       const list = document.getElementById('subtitleList');
       const handleUserScroll = () => {
@@ -238,7 +252,6 @@
       list.addEventListener('touchmove', handleUserScroll, { passive: true });
     }
 
-    // 「📍 現在位置へ」ボタンで同期再開
     function resumeSync() {
       isAutoSyncEnabled = true;
       document.getElementById('syncBtn').style.display = 'none';
@@ -396,7 +409,6 @@
       });
     }
 
-    // 字幕タップ時の制御（ハイライト中の文なら一時停止/再開、別文ならジャンプ）
     function onSubtitleItemClick(idx) {
       if (!isPlayerReady || !ytPlayer) return;
       if (currentSentenceIdx === idx) {
@@ -407,7 +419,6 @@
       }
     }
 
-    // 再生/一時停止トグル
     function togglePlayPause() {
       if (!isPlayerReady || !ytPlayer || !ytPlayer.getPlayerState) return;
       const state = ytPlayer.getPlayerState();
