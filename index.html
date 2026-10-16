@@ -59,12 +59,11 @@
     button.secondary { background: #f1f5f9; color: #334155; border: 1px solid var(--border); }
     button.secondary:hover { background: #e2e8f0; }
 
-    /* 字幕リスト（PCで収まりやすい高さに調整） */
+    /* 字幕リスト */
     .subtitle-wrapper { position: relative; }
     .subtitle-list {
       max-height: 250px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px;
       padding: 8px; background: #fafafa;
-      scroll-behavior: smooth;
     }
     .sub-item {
       padding: 6px 8px; border-radius: 6px; font-size: 0.9rem; cursor: pointer;
@@ -257,14 +256,18 @@
       scrollToCurrentSentence();
     }
 
-    // 再生中の文を上下中央に配置
+    // ページ全体は動かさず、字幕リストの内側だけを計算して上下中央にスクロール
     function scrollToCurrentSentence() {
-      if (currentSentenceIdx >= 0) {
-        const el = document.getElementById(`sub-${currentSentenceIdx}`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
+      if (currentSentenceIdx < 0) return;
+      const list = document.getElementById('subtitleList');
+      const el = document.getElementById(`sub-${currentSentenceIdx}`);
+      if (!list || !el) return;
+
+      const targetTop = el.offsetTop - list.offsetTop - (list.clientHeight / 2) + (el.clientHeight / 2);
+      list.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: 'smooth'
+      });
     }
 
     function renderSeriesChips() {
@@ -506,9 +509,9 @@
               document.querySelectorAll('.sub-item.active').forEach(it => it.classList.remove('active'));
               el.classList.add('active');
 
-              // block: 'center' でエリアの中央へスムーズ移動
+              // 枠内のみ中央へスクロール
               if (isAutoSyncEnabled) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                scrollToCurrentSentence();
               }
             }
           }
