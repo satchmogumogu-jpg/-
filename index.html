@@ -331,12 +331,15 @@
       saveToHistory(ep);
     }
 
-    // Google ドライブのURLを判別し、直接テキストを取得する処理
-    async function playEpisodeData(ep) {
+    function playEpisodeData(ep) {
       const series = getValue(ep, 'series');
       const title = getValue(ep, 'title');
       const rawUrl = getValue(ep, 'url');
-      const rawTranscript = getValue(ep, 'transcript');
+      
+      // transcript と transcript2 を自動合体（改行で繋ぐ）
+      const part1 = getValue(ep, 'transcript');
+      const part2 = getValue(ep, 'transcript2');
+      const fullTranscript = part2 ? `${part1}\n${part2}` : part1;
 
       document.getElementById('currentEpisodeLabel').innerText = series ? `${series} - ${title}` : title;
       closeEpisodeList();
@@ -352,27 +355,7 @@
 
       isAutoSyncEnabled = true;
       document.getElementById('syncBtn').style.display = 'none';
-
-      // ドライブのリンクかどうか判定
-      const driveMatch = rawTranscript.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || rawTranscript.match(/id=([a-zA-Z0-9_-]+)/);
-      if (driveMatch && rawTranscript.startsWith('http')) {
-        const fileId = driveMatch[1];
-        const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-        const list = document.getElementById('subtitleList');
-        list.innerHTML = '<div style="color:#64748b; font-size:0.85rem; padding:8px;">Googleドライブから字幕を取得中...</div>';
-
-        try {
-          const res = await fetch(downloadUrl);
-          if (!res.ok) throw new Error('Failed to fetch text');
-          const fileText = await res.text();
-          parseSubtitles(fileText);
-        } catch (err) {
-          list.innerHTML = '<div style="color:#ef4444; font-size:0.85rem; padding:8px;">Googleドライブの字幕を取得できませんでした。「リンクを知っている全員が閲覧可」になっているか確認してください。</div>';
-        }
-      } else {
-        // 通常のセル内テキスト
-        parseSubtitles(rawTranscript);
-      }
+      parseSubtitles(fullTranscript);
     }
 
     function parseSubtitles(rawText) {
@@ -588,11 +571,16 @@
       const url = getValue(ep, 'url');
       let history = JSON.parse(localStorage.getItem('yt_bilingual_history') || '[]');
       history = history.filter(h => getValue(h, 'url') !== url);
+      
+      const part1 = getValue(ep, 'transcript');
+      const part2 = getValue(ep, 'transcript2');
+      const fullTranscript = part2 ? `${part1}\n${part2}` : part1;
+
       history.unshift({
         series: getValue(ep, 'series'),
         title: getValue(ep, 'title'),
         url: url,
-        transcript: getValue(ep, 'transcript'),
+        transcript: fullTranscript,
         date: new Date().toLocaleDateString([], { month: 'numeric', day: 'numeric' })
       });
       if (history.length > 10) history.pop();
