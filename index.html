@@ -178,7 +178,6 @@
   </div>
 
   <script>
-    // 1番目と2番目を入れ替え済み
     const SPREADSHEET_CSV_URLS = [
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=424319748&single=true&output=csv",
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=0&single=true&output=csv",
@@ -257,7 +256,6 @@
       scrollToCurrentSentence();
     }
 
-    // 枠内のみ上下中央へスクロール
     function scrollToCurrentSentence() {
       if (currentSentenceIdx < 0) return;
       const list = document.getElementById('subtitleList');
@@ -333,7 +331,8 @@
       saveToHistory(ep);
     }
 
-    function playEpisodeData(ep) {
+    // Google ドライブのURLを判別し、直接テキストを取得する処理
+    async function playEpisodeData(ep) {
       const series = getValue(ep, 'series');
       const title = getValue(ep, 'title');
       const rawUrl = getValue(ep, 'url');
@@ -353,7 +352,27 @@
 
       isAutoSyncEnabled = true;
       document.getElementById('syncBtn').style.display = 'none';
-      parseSubtitles(rawTranscript);
+
+      // ドライブのリンクかどうか判定
+      const driveMatch = rawTranscript.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || rawTranscript.match(/id=([a-zA-Z0-9_-]+)/);
+      if (driveMatch && rawTranscript.startsWith('http')) {
+        const fileId = driveMatch[1];
+        const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        const list = document.getElementById('subtitleList');
+        list.innerHTML = '<div style="color:#64748b; font-size:0.85rem; padding:8px;">Googleドライブから字幕を取得中...</div>';
+
+        try {
+          const res = await fetch(downloadUrl);
+          if (!res.ok) throw new Error('Failed to fetch text');
+          const fileText = await res.text();
+          parseSubtitles(fileText);
+        } catch (err) {
+          list.innerHTML = '<div style="color:#ef4444; font-size:0.85rem; padding:8px;">Googleドライブの字幕を取得できませんでした。「リンクを知っている全員が閲覧可」になっているか確認してください。</div>';
+        }
+      } else {
+        // 通常のセル内テキスト
+        parseSubtitles(rawTranscript);
+      }
     }
 
     function parseSubtitles(rawText) {
