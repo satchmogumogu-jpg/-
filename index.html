@@ -16,56 +16,58 @@
       --highlight: #dbeafe;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 12px; max-width: 680px; margin: 0 auto; line-height: 1.5; }
-    h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; text-align: center; color: var(--text); }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; position: relative; }
-    .card-title { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; color: #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+    body { background: var(--bg); color: var(--text); padding: 10px; max-width: 680px; margin: 0 auto; line-height: 1.45; }
+    h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; text-align: center; color: var(--text); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; position: relative; }
+    .card-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; color: #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
 
-    .chip-container { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+    .chip-container { display: flex; gap: 6px; flex-wrap: wrap; }
     .chip {
-      background: #f1f5f9; border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px;
-      font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: 0.15s; color: #334155;
+      background: #f1f5f9; border: 1px solid var(--border); padding: 4px 10px; border-radius: 16px;
+      font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: 0.15s; color: #334155;
     }
     .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
     .accordion-toggle {
       width: 100%; text-align: left; background: #f8fafc; border: 1px solid var(--border);
-      padding: 10px 14px; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
+      padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600;
       color: #1e293b; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
     }
     .accordion-toggle:hover { background: #f1f5f9; }
-    .accordion-toggle #accordionArrow { color: #64748b; font-size: 0.8rem; }
+    .accordion-toggle #accordionArrow { color: #64748b; font-size: 0.75rem; }
 
     .episode-list {
-      max-height: 240px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;
+      max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px;
       margin-top: 6px; background: #fff; display: none;
     }
     .episode-list.open { display: block; }
     .episode-item {
-      padding: 10px 14px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; cursor: pointer;
+      padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.82rem; cursor: pointer;
       color: #334155; transition: 0.1s;
     }
     .episode-item:last-child { border-bottom: none; }
     .episode-item:hover { background: #eff6ff; color: var(--primary); }
 
-    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; background: #000; margin-bottom: 8px; }
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 6px; background: #000; margin-bottom: 6px; }
     .video-container iframe, .video-container #player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .controls { display: flex; gap: 6px; flex-wrap: wrap; }
 
     button {
-      background: var(--primary); color: white; border: none; border-radius: 6px; padding: 6px 12px;
-      font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: 0.15s;
+      background: var(--primary); color: white; border: none; border-radius: 6px; padding: 5px 10px;
+      font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: 0.15s;
     }
     button.secondary { background: #f1f5f9; color: #334155; border: 1px solid var(--border); }
     button.secondary:hover { background: #e2e8f0; }
 
+    /* 字幕リスト（PCで収まりやすい高さに調整） */
     .subtitle-wrapper { position: relative; }
     .subtitle-list {
-      max-height: 340px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;
+      max-height: 250px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px;
       padding: 8px; background: #fafafa;
+      scroll-behavior: smooth;
     }
     .sub-item {
-      padding: 8px 10px; border-radius: 6px; font-size: 0.95rem; cursor: pointer;
+      padding: 6px 8px; border-radius: 6px; font-size: 0.9rem; cursor: pointer;
       margin-bottom: 4px; color: #1e293b; transition: background 0.15s;
     }
     .sub-item:hover { background: #edf2f7; }
@@ -73,41 +75,42 @@
       background: var(--highlight); color: #1e40af;
       border-left: 4px solid var(--primary); font-weight: 600;
     }
-    .sub-time { font-size: 0.75rem; color: #94a3b8; margin-right: 8px; }
+    .sub-time { font-size: 0.72rem; color: #94a3b8; margin-right: 6px; }
     .sub-en { line-height: 1.4; transition: filter 0.2s; }
-    .sub-ja { font-size: 0.82rem; color: #64748b; margin-top: 3px; font-weight: normal; }
+    .sub-ja { font-size: 0.8rem; color: #64748b; margin-top: 2px; font-weight: normal; }
 
     .hide-ja .sub-ja { display: none !important; }
 
+    /* ディクテーション用ぼかし */
     .blur-en .sub-en { filter: blur(5px); user-select: none; }
     .blur-en .sub-item:hover .sub-en,
     .blur-en .sub-item:active .sub-en { filter: none; user-select: auto; }
 
     .sync-btn {
-      position: absolute; bottom: 12px; right: 12px; background: #0f172a; color: #fff;
-      border: none; border-radius: 20px; padding: 6px 14px; font-size: 0.78rem; font-weight: 600;
+      position: absolute; bottom: 10px; right: 10px; background: #0f172a; color: #fff;
+      border: none; border-radius: 18px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600;
       box-shadow: 0 4px 12px rgba(0,0,0,0.18); cursor: pointer; display: none;
       align-items: center; gap: 4px; z-index: 10; opacity: 0.95;
     }
     .sync-btn:hover { background: #1e293b; opacity: 1; }
 
     .ai-notice {
-      margin-top: 10px;
-      padding: 8px 12px;
+      margin-top: 8px;
+      padding: 6px 10px;
       background: #f8fafc;
       border: 1px dashed var(--border);
       border-radius: 6px;
-      font-size: 0.76rem;
+      font-size: 0.72rem;
       color: #64748b;
-      line-height: 1.45;
+      line-height: 1.4;
       display: flex;
       align-items: flex-start;
       gap: 6px;
     }
-    .ai-notice-icon { flex-shrink: 0; font-size: 0.82rem; }
+    .ai-notice-icon { flex-shrink: 0; font-size: 0.76rem; }
 
-    .history-list { font-size: 0.82rem; }
-    .history-item { padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .history-list { font-size: 0.8rem; }
+    .history-item { padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   </style>
 </head>
 <body>
@@ -118,7 +121,7 @@
   <div class="card">
     <div class="card-title">1. 番組を選ぶ</div>
     <div class="chip-container" id="seriesChips">
-      <span style="font-size:0.82rem; color:#94a3b8;">読み込み中...</span>
+      <span style="font-size:0.8rem; color:#94a3b8;">読み込み中...</span>
     </div>
   </div>
 
@@ -156,7 +159,7 @@
     </div>
     <div class="subtitle-wrapper">
       <div class="subtitle-list" id="subtitleList">
-        <div style="color:#94a3b8; font-size:0.85rem; padding:8px;">エピソードを選択すると字幕が表示されます。</div>
+        <div style="color:#94a3b8; font-size:0.82rem; padding:6px;">エピソードを選択すると字幕が表示されます。</div>
       </div>
       <button class="sync-btn" id="syncBtn" onclick="resumeSync()">📍 現在位置へ</button>
     </div>
@@ -170,13 +173,12 @@
   <div class="card">
     <div class="card-title">
       <span>最近聴いたエピソード</span>
-      <button class="secondary" style="font-size:0.75rem; padding:2px 6px;" onclick="clearHistory()">クリア</button>
+      <button class="secondary" style="font-size:0.72rem; padding:2px 6px;" onclick="clearHistory()">クリア</button>
     </div>
     <div class="history-list" id="historyList"></div>
   </div>
 
   <script>
-    // 登録された複数のシートCSV URL
     const SPREADSHEET_CSV_URLS = [
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=0&single=true&output=csv",
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=424319748&single=true&output=csv",
@@ -214,7 +216,6 @@
       loadAllSheets();
     });
 
-    // 複数シートを並列で読み込んで合体
     function loadAllSheets() {
       const promises = SPREADSHEET_CSV_URLS.map(url => {
         return new Promise((resolve) => {
@@ -223,15 +224,13 @@
             header: true,
             skipEmptyLines: true,
             complete: (results) => resolve(results.data || []),
-            error: () => resolve([]) // 読み込めないシートがあっても他を活かす
+            error: () => resolve([])
           });
         });
       });
 
       Promise.all(promises).then(sheetResults => {
-        // 全シートのデータを1つの配列にフラット化
         const combined = sheetResults.flat().filter(ep => {
-          // 有効な行（titleまたはurlがあるもの）だけ残す
           return getValue(ep, 'title') || getValue(ep, 'url');
         });
 
@@ -258,11 +257,12 @@
       scrollToCurrentSentence();
     }
 
+    // 再生中の文を上下中央に配置
     function scrollToCurrentSentence() {
       if (currentSentenceIdx >= 0) {
         const el = document.getElementById(`sub-${currentSentenceIdx}`);
         if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
     }
@@ -272,7 +272,7 @@
       const seriesList = [...new Set(allEpisodes.map(ep => getValue(ep, 'series')).filter(Boolean))];
 
       if (seriesList.length === 0) {
-        container.innerHTML = '<span style="font-size:0.82rem; color:#94a3b8;">番組データがありません。</span>';
+        container.innerHTML = '<span style="font-size:0.8rem; color:#94a3b8;">番組データがありません。</span>';
         return;
       }
 
@@ -355,7 +355,7 @@
     function parseSubtitles(rawText) {
       const list = document.getElementById('subtitleList');
       if (!rawText) {
-        list.innerHTML = '<div style="color:#ef4444; font-size:0.85rem; padding:8px;">字幕データが見つかりませんでした。</div>';
+        list.innerHTML = '<div style="color:#ef4444; font-size:0.82rem; padding:6px;">字幕データが見つかりませんでした。</div>';
         return;
       }
 
@@ -506,8 +506,9 @@
               document.querySelectorAll('.sub-item.active').forEach(it => it.classList.remove('active'));
               el.classList.add('active');
 
+              // block: 'center' でエリアの中央へスムーズ移動
               if (isAutoSyncEnabled) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
               }
             }
           }
@@ -588,7 +589,7 @@
         <div class="history-item">
           <div>
             <strong>${escapeHtml(h.title)}</strong>
-            <div style="font-size:0.75rem; color:#64748b;">${escapeHtml(h.series)} · ${h.date}</div>
+            <div style="font-size:0.72rem; color:#64748b;">${escapeHtml(h.series)} · ${h.date}</div>
           </div>
           <button class="secondary" onclick='playEpisodeData(${JSON.stringify(h).replace(/'/g, "&#39;")})'>▶ もう一度聴く</button>
         </div>
