@@ -178,9 +178,10 @@
   </div>
 
   <script>
+    // 1番目と2番目を入れ替え済み
     const SPREADSHEET_CSV_URLS = [
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=0&single=true&output=csv",
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=424319748&single=true&output=csv",
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=0&single=true&output=csv",
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=2025551974&single=true&output=csv",
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=1080297288&single=true&output=csv",
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vR401NUuwwGjXjMUnjjUt6iG0eCcr8OwNWQygleopLWulhxFjBIPa5anr5Xb70RohJrsk_k9uVNtC2f/pub?gid=223186418&single=true&output=csv"
@@ -256,7 +257,7 @@
       scrollToCurrentSentence();
     }
 
-    // ページ全体は動かさず、字幕リストの内側だけを計算して上下中央にスクロール
+    // 枠内のみ上下中央へスクロール
     function scrollToCurrentSentence() {
       if (currentSentenceIdx < 0) return;
       const list = document.getElementById('subtitleList');
@@ -509,7 +510,6 @@
               document.querySelectorAll('.sub-item.active').forEach(it => it.classList.remove('active'));
               el.classList.add('active');
 
-              // 枠内のみ中央へスクロール
               if (isAutoSyncEnabled) {
                 scrollToCurrentSentence();
               }
